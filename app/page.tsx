@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Loader2 } from 'lucide-react'
-import { FiSearch, FiHome, FiBookmark, FiUser, FiPlus, FiX, FiClock, FiFilter, FiChevronLeft, FiHeart } from 'react-icons/fi'
+import { FiSearch, FiHome, FiBookmark, FiUser, FiPlus, FiX, FiClock, FiFilter, FiChevronLeft, FiHeart, FiTrendingUp, FiCalendar, FiTarget } from 'react-icons/fi'
 import { GiCookingPot, GiTomato, GiOnion, GiBowlOfRice, GiEggClutch, GiChiliPepper } from 'react-icons/gi'
 import { MdRestaurantMenu } from 'react-icons/md'
+import { BiDumbbell } from 'react-icons/bi'
+import { AiOutlineLineChart } from 'react-icons/ai'
 
 // TypeScript Interfaces from actual agent response
 interface Nutrition {
@@ -46,6 +48,34 @@ interface RecipeResponse {
     agent_name: string
     timestamp: string
   }
+}
+
+// New interfaces for tracking
+interface DailyNutrition {
+  date: string
+  calories: number
+  protein: number
+  carbs: number
+  fats: number
+  fiber: number
+  meals: string[]
+}
+
+interface MealPlan {
+  id: string
+  day: string
+  breakfast: Recipe | null
+  lunch: Recipe | null
+  dinner: Recipe | null
+  snacks: Recipe | null
+}
+
+interface NutritionGoals {
+  calories: number
+  protein: number
+  carbs: number
+  fats: number
+  fiber: number
 }
 
 // Ingredient categories
@@ -249,8 +279,8 @@ function NutritionCard({ nutrition }: { nutrition: Nutrition }) {
 function BottomNav({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) {
   const tabs = [
     { id: 'home', icon: FiHome, label: 'Home' },
-    { id: 'explore', icon: MdRestaurantMenu, label: 'Explore' },
-    { id: 'collections', icon: FiBookmark, label: 'Saved' },
+    { id: 'mealplans', icon: FiCalendar, label: 'Meal Plans' },
+    { id: 'progress', icon: FiTrendingUp, label: 'Progress' },
     { id: 'profile', icon: FiUser, label: 'Profile' },
   ]
 
@@ -317,6 +347,88 @@ export default function Home() {
     'Quick lunch ideas',
     'High protein meals',
   ])
+
+  // Nutrition tracking state
+  const [nutritionGoals] = useState<NutritionGoals>({
+    calories: 2000,
+    protein: 150,
+    carbs: 250,
+    fats: 65,
+    fiber: 30,
+  })
+
+  const [dailyNutrition, setDailyNutrition] = useState<DailyNutrition[]>([
+    { date: '2026-02-06', calories: 1850, protein: 140, carbs: 220, fats: 58, fiber: 28, meals: ['Tomato Rice', 'Paneer Curry'] },
+    { date: '2026-02-05', calories: 1920, protein: 145, carbs: 230, fats: 60, fiber: 25, meals: ['Egg Bhurji', 'Dal Rice'] },
+    { date: '2026-02-04', calories: 2100, protein: 155, carbs: 260, fats: 68, fiber: 32, meals: ['Chicken Curry', 'Roti'] },
+    { date: '2026-02-03', calories: 1780, protein: 135, carbs: 210, fats: 55, fiber: 24, meals: ['Aloo Matar', 'Rice'] },
+    { date: '2026-02-02', calories: 1950, protein: 148, carbs: 240, fats: 62, fiber: 29, meals: ['Fish Curry', 'Quinoa'] },
+    { date: '2026-02-01', calories: 1890, protein: 142, carbs: 225, fats: 59, fiber: 27, meals: ['Tofu Stir-fry', 'Bread'] },
+    { date: '2026-01-31', calories: 2020, protein: 152, carbs: 245, fats: 64, fiber: 30, meals: ['Paneer Tikka', 'Naan'] },
+  ])
+
+  // Meal plans state
+  const [mealPlans, setMealPlans] = useState<MealPlan[]>([
+    {
+      id: '1',
+      day: 'Monday',
+      breakfast: null,
+      lunch: null,
+      dinner: null,
+      snacks: null,
+    },
+    {
+      id: '2',
+      day: 'Tuesday',
+      breakfast: null,
+      lunch: null,
+      dinner: null,
+      snacks: null,
+    },
+    {
+      id: '3',
+      day: 'Wednesday',
+      breakfast: null,
+      lunch: null,
+      dinner: null,
+      snacks: null,
+    },
+    {
+      id: '4',
+      day: 'Thursday',
+      breakfast: null,
+      lunch: null,
+      dinner: null,
+      snacks: null,
+    },
+    {
+      id: '5',
+      day: 'Friday',
+      breakfast: null,
+      lunch: null,
+      dinner: null,
+      snacks: null,
+    },
+    {
+      id: '6',
+      day: 'Saturday',
+      breakfast: null,
+      lunch: null,
+      dinner: null,
+      snacks: null,
+    },
+    {
+      id: '7',
+      day: 'Sunday',
+      breakfast: null,
+      lunch: null,
+      dinner: null,
+      snacks: null,
+    },
+  ])
+
+  const [selectedMealPlan, setSelectedMealPlan] = useState<MealPlan | null>(null)
+  const [selectedMealType, setSelectedMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snacks' | null>(null)
 
   const handleQuickAdd = (ingredient: string) => {
     if (!selectedIngredients.includes(ingredient)) {
@@ -385,6 +497,28 @@ export default function Home() {
     setActiveTab(tab)
     if (tab === 'home') {
       setActiveScreen('home')
+    }
+  }
+
+  const handleAddToMealPlan = (recipe: Recipe, mealPlanId: string, mealType: 'breakfast' | 'lunch' | 'dinner' | 'snacks') => {
+    setMealPlans(plans => plans.map(plan => {
+      if (plan.id === mealPlanId) {
+        return { ...plan, [mealType]: recipe }
+      }
+      return plan
+    }))
+  }
+
+  const getTodayNutrition = () => {
+    const today = new Date().toISOString().split('T')[0]
+    return dailyNutrition.find(d => d.date === today) || {
+      date: today,
+      calories: 0,
+      protein: 0,
+      carbs: 0,
+      fats: 0,
+      fiber: 0,
+      meals: []
     }
   }
 
@@ -919,6 +1053,377 @@ export default function Home() {
     </div>
   )
 
+  // Progress Screen
+  const ProgressScreen = () => {
+    const todayNutrition = getTodayNutrition()
+    const weeklyData = dailyNutrition.slice(0, 7).reverse()
+
+    return (
+      <div className="pb-20 px-4 pt-6" style={{ backgroundColor: '#F5F1EB', minHeight: '100vh' }}>
+        <div className="max-w-md mx-auto">
+          <h2 className="text-2xl font-bold mb-6" style={{ color: '#5D4E37' }}>
+            Progress Tracking
+          </h2>
+
+          {/* Today's Progress */}
+          <Card className="mb-6 border-0 shadow-md" style={{ backgroundColor: '#FFFEF9', borderRadius: '16px' }}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2" style={{ color: '#5D4E37' }}>
+                <FiTarget className="text-xl" />
+                Today's Nutrition
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                {/* Calories */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium" style={{ color: '#808557' }}>Calories</span>
+                    <span className="text-xs" style={{ color: '#808557' }}>
+                      {todayNutrition.calories}/{nutritionGoals.calories}
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full" style={{ backgroundColor: '#F5F1EB' }}>
+                    <div
+                      className="h-2 rounded-full"
+                      style={{
+                        backgroundColor: '#CD8B62',
+                        width: `${Math.min((todayNutrition.calories / nutritionGoals.calories) * 100, 100)}%`
+                      }}
+                    />
+                  </div>
+                  <div className="text-2xl font-bold mt-2" style={{ color: '#CD8B62' }}>
+                    {Math.round((todayNutrition.calories / nutritionGoals.calories) * 100)}%
+                  </div>
+                </div>
+
+                {/* Protein */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium" style={{ color: '#808557' }}>Protein</span>
+                    <span className="text-xs" style={{ color: '#808557' }}>
+                      {todayNutrition.protein}g/{nutritionGoals.protein}g
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full" style={{ backgroundColor: '#F5F1EB' }}>
+                    <div
+                      className="h-2 rounded-full"
+                      style={{
+                        backgroundColor: '#9CAF88',
+                        width: `${Math.min((todayNutrition.protein / nutritionGoals.protein) * 100, 100)}%`
+                      }}
+                    />
+                  </div>
+                  <div className="text-2xl font-bold mt-2" style={{ color: '#9CAF88' }}>
+                    {Math.round((todayNutrition.protein / nutritionGoals.protein) * 100)}%
+                  </div>
+                </div>
+
+                {/* Carbs */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium" style={{ color: '#808557' }}>Carbs</span>
+                    <span className="text-xs" style={{ color: '#808557' }}>
+                      {todayNutrition.carbs}g/{nutritionGoals.carbs}g
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full" style={{ backgroundColor: '#F5F1EB' }}>
+                    <div
+                      className="h-2 rounded-full"
+                      style={{
+                        backgroundColor: '#808557',
+                        width: `${Math.min((todayNutrition.carbs / nutritionGoals.carbs) * 100, 100)}%`
+                      }}
+                    />
+                  </div>
+                  <div className="text-2xl font-bold mt-2" style={{ color: '#808557' }}>
+                    {Math.round((todayNutrition.carbs / nutritionGoals.carbs) * 100)}%
+                  </div>
+                </div>
+
+                {/* Fats */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium" style={{ color: '#808557' }}>Fats</span>
+                    <span className="text-xs" style={{ color: '#808557' }}>
+                      {todayNutrition.fats}g/{nutritionGoals.fats}g
+                    </span>
+                  </div>
+                  <div className="w-full h-2 rounded-full" style={{ backgroundColor: '#F5F1EB' }}>
+                    <div
+                      className="h-2 rounded-full"
+                      style={{
+                        backgroundColor: '#CD8B62',
+                        width: `${Math.min((todayNutrition.fats / nutritionGoals.fats) * 100, 100)}%`
+                      }}
+                    />
+                  </div>
+                  <div className="text-2xl font-bold mt-2" style={{ color: '#CD8B62' }}>
+                    {Math.round((todayNutrition.fats / nutritionGoals.fats) * 100)}%
+                  </div>
+                </div>
+              </div>
+
+              {todayNutrition.meals.length > 0 && (
+                <div className="mt-4 pt-4 border-t" style={{ borderColor: '#F5F1EB' }}>
+                  <div className="text-sm font-medium mb-2" style={{ color: '#5D4E37' }}>Today's Meals</div>
+                  <div className="flex flex-wrap gap-2">
+                    {todayNutrition.meals.map((meal, idx) => (
+                      <span
+                        key={idx}
+                        className="px-3 py-1 rounded-full text-sm"
+                        style={{ backgroundColor: '#9CAF88', color: 'white' }}
+                      >
+                        {meal}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Weekly Overview */}
+          <Card className="mb-6 border-0 shadow-md" style={{ backgroundColor: '#FFFEF9', borderRadius: '16px' }}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2" style={{ color: '#5D4E37' }}>
+                <AiOutlineLineChart className="text-xl" />
+                7-Day Nutrition Trend
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {/* Simple bar chart visualization */}
+              <div className="space-y-3">
+                {weeklyData.map((day) => {
+                  const date = new Date(day.date)
+                  const dayName = date.toLocaleDateString('en-US', { weekday: 'short' })
+                  const caloriePercent = Math.round((day.calories / nutritionGoals.calories) * 100)
+
+                  return (
+                    <div key={day.date}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium" style={{ color: '#5D4E37' }}>{dayName}</span>
+                        <span className="text-xs" style={{ color: '#808557' }}>{day.calories} cal</span>
+                      </div>
+                      <div className="w-full h-3 rounded-full" style={{ backgroundColor: '#F5F1EB' }}>
+                        <div
+                          className="h-3 rounded-full transition-all"
+                          style={{
+                            backgroundColor: caloriePercent >= 90 && caloriePercent <= 110 ? '#9CAF88' : '#CD8B62',
+                            width: `${Math.min(caloriePercent, 100)}%`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Weekly Stats */}
+          <Card className="mb-6 border-0 shadow-md" style={{ backgroundColor: '#FFFEF9', borderRadius: '16px' }}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2" style={{ color: '#5D4E37' }}>
+                <BiDumbbell className="text-xl" />
+                Weekly Summary
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 rounded-lg text-center" style={{ backgroundColor: '#F5F1EB' }}>
+                  <div className="text-2xl font-bold" style={{ color: '#9CAF88' }}>
+                    {Math.round(weeklyData.reduce((sum, d) => sum + d.calories, 0) / weeklyData.length)}
+                  </div>
+                  <div className="text-xs mt-1" style={{ color: '#808557' }}>Avg Calories/Day</div>
+                </div>
+                <div className="p-3 rounded-lg text-center" style={{ backgroundColor: '#F5F1EB' }}>
+                  <div className="text-2xl font-bold" style={{ color: '#CD8B62' }}>
+                    {Math.round(weeklyData.reduce((sum, d) => sum + d.protein, 0) / weeklyData.length)}g
+                  </div>
+                  <div className="text-xs mt-1" style={{ color: '#808557' }}>Avg Protein/Day</div>
+                </div>
+                <div className="p-3 rounded-lg text-center" style={{ backgroundColor: '#F5F1EB' }}>
+                  <div className="text-2xl font-bold" style={{ color: '#808557' }}>
+                    {weeklyData.reduce((sum, d) => sum + d.meals.length, 0)}
+                  </div>
+                  <div className="text-xs mt-1" style={{ color: '#808557' }}>Total Meals</div>
+                </div>
+                <div className="p-3 rounded-lg text-center" style={{ backgroundColor: '#F5F1EB' }}>
+                  <div className="text-2xl font-bold" style={{ color: '#9CAF88' }}>
+                    {weeklyData.filter(d => d.calories >= nutritionGoals.calories * 0.9 && d.calories <= nutritionGoals.calories * 1.1).length}
+                  </div>
+                  <div className="text-xs mt-1" style={{ color: '#808557' }}>Days on Target</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  // Meal Plans Screen
+  const MealPlansScreen = () => {
+    return (
+      <div className="pb-20 px-4 pt-6" style={{ backgroundColor: '#F5F1EB', minHeight: '100vh' }}>
+        <div className="max-w-md mx-auto">
+          <h2 className="text-2xl font-bold mb-6" style={{ color: '#5D4E37' }}>
+            Weekly Meal Plans
+          </h2>
+
+          {/* Meal Plans */}
+          <div className="space-y-4">
+            {mealPlans.map((plan) => (
+              <Card key={plan.id} className="border-0 shadow-md" style={{ backgroundColor: '#FFFEF9', borderRadius: '16px' }}>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between" style={{ color: '#5D4E37' }}>
+                    <span className="flex items-center gap-2">
+                      <FiCalendar className="text-lg" />
+                      {plan.day}
+                    </span>
+                    <Button
+                      onClick={() => {
+                        setSelectedMealPlan(plan)
+                        setActiveScreen('ingredients')
+                      }}
+                      size="sm"
+                      className="h-8 text-xs rounded-full"
+                      style={{ backgroundColor: '#9CAF88', color: 'white' }}
+                    >
+                      <FiPlus className="mr-1" /> Add Meal
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {/* Breakfast */}
+                    <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#F5F1EB' }}>
+                      <div className="flex-1">
+                        <div className="text-xs font-medium mb-1" style={{ color: '#808557' }}>Breakfast</div>
+                        {plan.breakfast ? (
+                          <div className="text-sm font-medium" style={{ color: '#5D4E37' }}>
+                            {plan.breakfast.recipe_name}
+                          </div>
+                        ) : (
+                          <div className="text-sm" style={{ color: '#808557' }}>Not planned</div>
+                        )}
+                      </div>
+                      {plan.breakfast && (
+                        <div className="text-xs" style={{ color: '#CD8B62' }}>
+                          {plan.breakfast.nutrition.calories} cal
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Lunch */}
+                    <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#F5F1EB' }}>
+                      <div className="flex-1">
+                        <div className="text-xs font-medium mb-1" style={{ color: '#808557' }}>Lunch</div>
+                        {plan.lunch ? (
+                          <div className="text-sm font-medium" style={{ color: '#5D4E37' }}>
+                            {plan.lunch.recipe_name}
+                          </div>
+                        ) : (
+                          <div className="text-sm" style={{ color: '#808557' }}>Not planned</div>
+                        )}
+                      </div>
+                      {plan.lunch && (
+                        <div className="text-xs" style={{ color: '#CD8B62' }}>
+                          {plan.lunch.nutrition.calories} cal
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Dinner */}
+                    <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#F5F1EB' }}>
+                      <div className="flex-1">
+                        <div className="text-xs font-medium mb-1" style={{ color: '#808557' }}>Dinner</div>
+                        {plan.dinner ? (
+                          <div className="text-sm font-medium" style={{ color: '#5D4E37' }}>
+                            {plan.dinner.recipe_name}
+                          </div>
+                        ) : (
+                          <div className="text-sm" style={{ color: '#808557' }}>Not planned</div>
+                        )}
+                      </div>
+                      {plan.dinner && (
+                        <div className="text-xs" style={{ color: '#CD8B62' }}>
+                          {plan.dinner.nutrition.calories} cal
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Snacks */}
+                    <div className="flex items-center justify-between p-3 rounded-lg" style={{ backgroundColor: '#F5F1EB' }}>
+                      <div className="flex-1">
+                        <div className="text-xs font-medium mb-1" style={{ color: '#808557' }}>Snacks</div>
+                        {plan.snacks ? (
+                          <div className="text-sm font-medium" style={{ color: '#5D4E37' }}>
+                            {plan.snacks.recipe_name}
+                          </div>
+                        ) : (
+                          <div className="text-sm" style={{ color: '#808557' }}>Not planned</div>
+                        )}
+                      </div>
+                      {plan.snacks && (
+                        <div className="text-xs" style={{ color: '#CD8B62' }}>
+                          {plan.snacks.nutrition.calories} cal
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Daily Total */}
+                    {(plan.breakfast || plan.lunch || plan.dinner || plan.snacks) && (
+                      <div className="pt-2 border-t flex items-center justify-between" style={{ borderColor: '#E5E5E5' }}>
+                        <span className="text-sm font-medium" style={{ color: '#5D4E37' }}>Daily Total</span>
+                        <div className="text-right">
+                          <div className="text-lg font-bold" style={{ color: '#CD8B62' }}>
+                            {(plan.breakfast?.nutrition.calories || 0) +
+                             (plan.lunch?.nutrition.calories || 0) +
+                             (plan.dinner?.nutrition.calories || 0) +
+                             (plan.snacks?.nutrition.calories || 0)} cal
+                          </div>
+                          <div className="text-xs" style={{ color: '#808557' }}>
+                            Protein: {(plan.breakfast?.nutrition.protein_g || 0) +
+                             (plan.lunch?.nutrition.protein_g || 0) +
+                             (plan.dinner?.nutrition.protein_g || 0) +
+                             (plan.snacks?.nutrition.protein_g || 0)}g
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Generate Meal Plan with AI */}
+          <Card className="mt-6 border-0 shadow-md" style={{ backgroundColor: '#FFFEF9', borderRadius: '16px' }}>
+            <CardContent className="p-6">
+              <div className="text-center">
+                <GiCookingPot className="text-5xl mx-auto mb-3" style={{ color: '#9CAF88' }} />
+                <h3 className="font-bold text-lg mb-2" style={{ color: '#5D4E37' }}>
+                  Need Help Planning?
+                </h3>
+                <p className="text-sm mb-4" style={{ color: '#808557' }}>
+                  Let our AI suggest a complete week of meals based on your preferences
+                </p>
+                <Button
+                  className="w-full rounded-full"
+                  style={{ backgroundColor: '#CD8B62', color: 'white' }}
+                >
+                  Generate AI Meal Plan
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
   // Explore Screen
   const ExploreScreen = () => {
     const cuisines = [
@@ -964,8 +1469,8 @@ export default function Home() {
       {activeScreen === 'ingredients' && <IngredientsScreen />}
       {activeScreen === 'results' && <ResultsScreen />}
       {activeScreen === 'detail' && <DetailScreen />}
-      {activeTab === 'explore' && activeScreen === 'home' && <ExploreScreen />}
-      {activeTab === 'collections' && activeScreen === 'home' && <CollectionsScreen />}
+      {activeTab === 'mealplans' && activeScreen === 'home' && <MealPlansScreen />}
+      {activeTab === 'progress' && activeScreen === 'home' && <ProgressScreen />}
       {activeTab === 'profile' && activeScreen === 'home' && <ProfileScreen />}
 
       <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
