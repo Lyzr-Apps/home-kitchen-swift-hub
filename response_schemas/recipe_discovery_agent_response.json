@@ -1,0 +1,146 @@
+{
+  "agent_name": "Recipe Discovery Agent",
+  "agent_id": "69859968e17e33c11eed1abc",
+  "agent_purpose": "recipe_discovery",
+  "description": "Response schema for Recipe Discovery Agent that returns matched recipes with nutrition info, substitutions, and cooking details",
+  "response_schema": {
+    "status": "string",
+    "result": {
+      "recipes": [
+        {
+          "recipe_name": "string",
+          "cuisine_type": "string",
+          "ingredients_matched": [
+            "string"
+          ],
+          "missing_ingredients": [
+            "any"
+          ],
+          "substitutions": [
+            "any"
+          ],
+          "cooking_time": "string",
+          "difficulty": "string",
+          "spice_level": "string",
+          "nutrition": {
+            "calories": "number",
+            "protein_g": "number",
+            "carbs_g": "number",
+            "fats_g": "number",
+            "fiber_g": "number",
+            "vitamins": [
+              "string"
+            ]
+          },
+          "tags": [
+            "string"
+          ],
+          "instructions_summary": "string"
+        }
+      ],
+      "total_matches": "number",
+      "ingredient_usage_percent": "number",
+      "language": "string"
+    },
+    "metadata": {
+      "agent_name": "string",
+      "timestamp": "string"
+    }
+  },
+  "example_response": {
+    "status": "success",
+    "result": {
+      "recipes": [
+        {
+          "recipe_name": "Aloo Matar",
+          "cuisine_type": "North Indian",
+          "ingredients_matched": [
+            "potatoes",
+            "peas",
+            "spices"
+          ],
+          "missing_ingredients": [],
+          "substitutions": [],
+          "cooking_time": "30 minutes",
+          "difficulty": "easy",
+          "spice_level": "mild",
+          "nutrition": {
+            "calories": 200,
+            "protein_g": 5,
+            "carbs_g": 35,
+            "fats_g": 7,
+            "fiber_g": 5,
+            "vitamins": [
+              "Vitamin C",
+              "Vitamin A",
+              "Folate"
+            ]
+          },
+          "tags": [
+            "toddler-friendly",
+            "vegetarian",
+            "gluten-free"
+          ],
+          "instructions_summary": "Cook potatoes and peas with mild spices until tender. Keep it flavorful yet mild for toddlers."
+        }
+      ],
+      "total_matches": 1,
+      "ingredient_usage_percent": 100,
+      "language": "English"
+    },
+    "metadata": {
+      "agent_name": "Recipe Discovery Agent",
+      "timestamp": "2023-11-05T12:00:00Z"
+    }
+  },
+  "is_actual_tested": true,
+  "test_timestamp": "2026-02-06T07:35:51.396272",
+  "test_message_used": "Hello, provide a sample response",
+  "actual_test_response": {
+    "status": "success",
+    "result": {
+      "recipes": [
+        {
+          "recipe_name": "Aloo Matar",
+          "cuisine_type": "North Indian",
+          "ingredients_matched": [
+            "potatoes",
+            "peas",
+            "spices"
+          ],
+          "missing_ingredients": [],
+          "substitutions": [],
+          "cooking_time": "30 minutes",
+          "difficulty": "easy",
+          "spice_level": "mild",
+          "nutrition": {
+            "calories": 200,
+            "protein_g": 5,
+            "carbs_g": 35,
+            "fats_g": 7,
+            "fiber_g": 5,
+            "vitamins": [
+              "Vitamin C",
+              "Vitamin A",
+              "Folate"
+            ]
+          },
+          "tags": [
+            "toddler-friendly",
+            "vegetarian",
+            "gluten-free"
+          ],
+          "instructions_summary": "Cook potatoes and peas with mild spices until tender. Keep it flavorful yet mild for toddlers."
+        }
+      ],
+      "total_matches": 1,
+      "ingredient_usage_percent": 100,
+      "language": "English"
+    },
+    "metadata": {
+      "agent_name": "Recipe Discovery Agent",
+      "timestamp": "2023-11-05T12:00:00Z"
+    }
+  },
+  "test_passed": true
+}

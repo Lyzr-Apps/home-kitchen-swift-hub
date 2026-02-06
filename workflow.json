@@ -1,0 +1,33 @@
+{
+  "nodes": [
+    {
+      "id": "input_node",
+      "type": "Input",
+      "label": "User Ingredient Input",
+      "nodeCategory": "input"
+    },
+    {
+      "id": "recipe_discovery_agent",
+      "type": "Agent",
+      "label": "Recipe Discovery Agent",
+      "nodeCategory": "agent",
+      "agent_id": "69859968e17e33c11eed1abc"
+    },
+    {
+      "id": "output_node",
+      "type": "Output",
+      "label": "Recipe Suggestions Output",
+      "nodeCategory": "end"
+    }
+  ],
+  "edges": [
+    {
+      "source": "input_node",
+      "target": "recipe_discovery_agent"
+    },
+    {
+      "source": "recipe_discovery_agent",
+      "target": "output_node"
+    }
+  ]
+}
